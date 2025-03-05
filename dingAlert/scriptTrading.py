@@ -26,8 +26,8 @@ last_alerts = {crypto: 0 for crypto in CRYPTOS}
 
 # Configuration Binance
 exchange = ccxt.binance({
-    'apiKey': 'Q64QJuS4Ro048O5ucBqFCInkfxn8QaGJzkKZD7O8b3g2UFvzDsI3nhKCZMXXCQkJ',
-    'secret': 'YV8KJyOm2DTA5rUmVlVl7inmLwmd3uLQr3lnBmbaP463ia5CoWgxSbA2EU6EyHfn',
+    'apiKey': 'Q64QJuS4Ro048O5ucBqFCInkfxn8QaGJCZMXXCQkJ',
+    'secret': 'YV8KJyOm2DTA5rUmV63ia5CoWgxSbA2EU6EyHfn',
     'enableRateLimit': True
 })
 
