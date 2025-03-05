@@ -17,8 +17,8 @@ pairs_data = {}
 
 # Configuration Binance
 exchange = ccxt.binance({
-    'apiKey': 'Q64QJuS4Ro048O5ucBqFCInFvzDsI3nhKCZMXXCQkJ',
-    'secret': 'YV8KJyOm2DTA5rmbaP463ia5CoWgxSbA2EU6EyHfn',
+    'apiKey': '',
+    'secret': '',
     'enableRateLimit': True
 })
 
