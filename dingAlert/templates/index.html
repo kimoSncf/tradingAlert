@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Alert</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .crypto-card {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .crypto-card h2 {
+            margin: 0 0 15px 0;
+            color: #4CAF50;
+        }
+
+        .signal-positive {
+            background: #1e3320;
+            animation: pulse 2s infinite;
+        }
+
+        .indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .value {
+            font-weight: bold;
+        }
+
+        .rsi-danger {
+            color: #ff4444;
+        }
+
+        .rsi-warning {
+            color: #ffbb33;
+        }
+
+        .rsi-good {
+            color: #00C851;
+        }
+
+        .price-up {
+            color: #00C851;
+        }
+
+        .price-down {
+            color: #ff4444;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .crypto-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trading Alert</h1>
+            <div class="filters">
+                <label>
+                    <input type="checkbox" id="showSignalsOnly" checked>
+                    Afficher uniquement les signaux positifs
+                </label>
+            </div>
+        </div>
+        <div class="crypto-grid" id="cryptoGrid"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        const cryptoData = new Map();
+        let previousPrices = new Map();
+
+        function getRSIColor(value) {
+            if (value < 30) return 'rsi-danger';
+            if (value < 50) return 'rsi-warning';
+            return 'rsi-good';
+        }
+
+        function getPriceClass(currentPrice, previousPrice) {
+            if (!previousPrice) return '';
+            return currentPrice > previousPrice ? 'price-up' : 'price-down';
+        }
+
+        socket.on('update_data', function (data) {
+            updateCryptoCard(data);
+        });
+
+        function updateCryptoCard(data) {
+            const previousPrice = cryptoData.get(data.pair)?.price;
+            cryptoData.set(data.pair, data);
+            previousPrices.set(data.pair, previousPrice);
+            renderCryptoGrid();
+        }
+
+        function renderCryptoGrid() {
+            const grid = document.getElementById('cryptoGrid');
+            const showSignalsOnly = document.getElementById('showSignalsOnly').checked;
+            grid.innerHTML = '';
+
+            [...cryptoData.values()]
+                .sort((a, b) => b.signal - a.signal)
+                .forEach(data => {
+                    if (showSignalsOnly && !data.signal) return;
+
+                    const priceClass = getPriceClass(data.price, previousPrices.get(data.pair));
+                    const card = document.createElement('div');
+                    card.className = `crypto-card ${data.signal ? 'signal-positive' : ''}`;
+                    card.innerHTML = `
+                        <h2>${data.pair}</h2>
+                        <div class="indicator">
+                            <span>Prix:</span>
+                            <span class="value ${priceClass}">${data.price.toFixed(8)}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>EMA6/12/20:</span>
+                            <span class="value">
+                                ${data.ema6.toFixed(2)} / ${data.ema12.toFixed(2)} / ${data.ema20.toFixed(2)}
+                            </span>
+                        </div>
+                        <div class="indicator">
+                            <span>RSI6:</span>
+                            <span class="value ${getRSIColor(data.rsi6)}">${data.rsi6.toFixed(2)}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>RSI12:</span>
+                            <span class="value ${getRSIColor(data.rsi12)}">${data.rsi12.toFixed(2)}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>RSI24:</span>
+                            <span class="value ${getRSIColor(data.rsi24)}">${data.rsi24.toFixed(2)}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>Signal:</span>
+                            <span class="value ${data.signal ? 'rsi-good' : ''}">${data.signal ? '✅ ACHAT' : '⏳ ATTENTE'}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>Mise à jour:</span>
+                            <span class="value">${data.timestamp}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+        }
+
+        document.getElementById('showSignalsOnly').addEventListener('change', renderCryptoGrid);
+    </script>
+</body>
+
+</html>
