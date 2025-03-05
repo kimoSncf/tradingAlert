@@ -8,8 +8,8 @@ from datetime import datetime
 
 # Configuration
 EMAIL_FROM = "scripttradingtn@gmail.com"
-EMAIL_TO = "karim.dev59@gmail.com"
-EMAIL_PASSWORD = "Karim321@"  # Mot de passe d'application Google
+EMAIL_TO = "karim.@gmail.com"
+EMAIL_PASSWORD = "@"  # Mot de passe d'application Google
 TIMEFRAME = '5m'
 CHECK_INTERVAL = 60  # Intervalle de vérification en secondes
 ALERT_COOLDOWN = 3600  # Délai minimum entre deux alertes pour une même paire
