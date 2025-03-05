@@ -7,8 +7,8 @@ def test_api_binance():
     
     # Configuration de l'API
     exchange = ccxt.binance({
-        'apiKey': 'Q64QJuS4Ro048O5ucBqFCInkfxn8QaGJzkKZD7O8b3g2UFvzDsI3nhKCZMXXCQkJ',
-        'secret': 'YV8KJyOm2DTA5rUmVlVl7inmLwmd3uLQr3lnBmbaP463ia5CoWgxSbA2EU6EyHfn',
+        'apiKey': 'Q64QJuS4Ro048O5ucBqFCInKZUFvzDsI3nhKCZMXXCQkJ',
+        'secret': 'YV8KJyOm2DTA5r3lnBmbaP463ia5CoWgxSbA2EU6EyHfn',
     })
 
     try:
